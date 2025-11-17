@@ -13,6 +13,7 @@ import {
   FiInfo,
   FiChevronDown,
 } from "react-icons/fi";
+import { FcClearFilters } from "react-icons/fc";
 
 interface TableProps {
   data: Record[];
@@ -328,7 +329,7 @@ const Table = ({ data }: TableProps) => {
             onClick={handleClearFilters}
             title="Clear all filters"
           >
-            Clear All Filters
+            <FcClearFilters size={20} />
           </button>
         </div>
       </div>
