@@ -1,13 +1,33 @@
 import { Record, Status } from "../types";
 
-// Helper function to generate random date
+// Helper function to generate random date in format "30 Dec 2024"
 const generateRandomDate = (): string => {
   const start = new Date(2023, 0, 1);
   const end = new Date(2024, 11, 31);
   const date = new Date(
     start.getTime() + Math.random() * (end.getTime() - start.getTime())
   );
-  return date.toLocaleDateString("en-GB");
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  return `${day} ${month} ${year}`;
 };
 
 // Helper function to generate random name
@@ -70,7 +90,7 @@ const generateEmail = (name: string): string => {
 
 // Helper function to get random status
 const getRandomStatus = (): Status => {
-  const statuses: Status[] = ["ACTIVE", "INVITED", "BLOCKED"];
+  const statuses: Status[] = ["ACTIVE", "INACTIVE", "BLOCKED"];
   return statuses[Math.floor(Math.random() * statuses.length)];
 };
 

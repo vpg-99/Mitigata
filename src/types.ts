@@ -1,4 +1,4 @@
-export type Status = "ACTIVE" | "INVITED" | "BLOCKED";
+export type Status = "ACTIVE" | "INACTIVE" | "BLOCKED";
 
 export interface Record {
   id: string;
