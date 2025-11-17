@@ -1,6 +1,7 @@
 .App {
-  min-height: 100vh;
+  height: 100vh;
   padding: 2rem;
+  overflow-y: auto;
 }
 
 @media (max-width: 768px) {

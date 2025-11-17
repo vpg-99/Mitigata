@@ -2186,6 +2186,7 @@ __metadata:
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-icons: "npm:^5.5.0"
+    react-virtuoso: "npm:^4.14.1"
     typescript: "npm:^5.2.2"
     vite: "npm:^5.0.8"
   languageName: unknown
@@ -2456,6 +2457,16 @@ __metadata:
   version: 0.17.0
   resolution: "react-refresh@npm:0.17.0"
   checksum: 10c0/002cba940384c9930008c0bce26cac97a9d5682bc623112c2268ba0c155127d9c178a9a5cc2212d560088d60dfd503edd808669a25f9b377f316a32361d0b23c
+  languageName: node
+  linkType: hard
+
+"react-virtuoso@npm:^4.14.1":
+  version: 4.14.1
+  resolution: "react-virtuoso@npm:4.14.1"
+  peerDependencies:
+    react: ">=16 || >=17 || >= 18 || >= 19"
+    react-dom: ">=16 || >=17 || >= 18 || >=19"
+  checksum: 10c0/1a9287e787b14f670475928f87e2d482da6d295b3de379a0a66d25e5bd570b63d0c130860abd3b897d663e0aab427278adbc3511637b0eea6f2e40c1e1e40923
   languageName: node
   linkType: hard
 

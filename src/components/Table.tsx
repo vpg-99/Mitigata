@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { TableVirtuoso } from "react-virtuoso";
 import { Record, Status } from "../types";
 import "./Table.css";
 import {
@@ -29,9 +30,9 @@ const Table = ({ data }: TableProps) => {
   const [searchName, setSearchName] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [displayCount, setDisplayCount] = useState(5); 
   const recordsPerPage = 10;
 
-  // Helper function to parse date in "30 Dec 2024" format
   const parseDate = (dateString: string): Date => {
     const months: { [key: string]: number } = {
       Jan: 0,
@@ -97,10 +98,6 @@ const Table = ({ data }: TableProps) => {
     let bValue: string | number;
 
     switch (sortField) {
-      //   case "id":
-      //     aValue = parseInt(a.id);
-      //     bValue = parseInt(b.id);
-      //     return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
       case "name":
         aValue = a.about.name;
         bValue = b.about.name;
@@ -132,11 +129,16 @@ const Table = ({ data }: TableProps) => {
     return sortDirection === "asc" ? comparison : -comparison;
   });
 
-  // Pagination
+  // Pagination with progressive loading
   const totalPages = Math.ceil(sortedData.length / recordsPerPage);
   const startIndex = (currentPage - 1) * recordsPerPage;
   const endIndex = startIndex + recordsPerPage;
-  const currentRecords = sortedData.slice(startIndex, endIndex);
+  const pageRecords = sortedData.slice(startIndex, endIndex);
+
+  const currentRecords = pageRecords.slice(
+    0,
+    Math.min(displayCount, pageRecords.length)
+  );
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -162,6 +164,25 @@ const Table = ({ data }: TableProps) => {
     setDateFrom("");
     setDateTo("");
     setCurrentPage(1);
+    setDisplayCount(5);
+  };
+
+  // Reset display count when page changes
+  useEffect(() => {
+    setDisplayCount(5);
+  }, [currentPage]);
+
+  // Reset display count and page when filters change
+  useEffect(() => {
+    setDisplayCount(5);
+    setCurrentPage(1);
+  }, [searchName, filterStatus, dateFrom, dateTo, sortField, sortDirection]);
+
+  // Handle end reached - load more items
+  const handleEndReached = () => {
+    if (displayCount < recordsPerPage && displayCount < pageRecords.length) {
+      setDisplayCount((prev) => Math.min(prev + 5, recordsPerPage));
+    }
   };
 
   const handleStatusUpdate = (recordId: string, newStatus: Status) => {
@@ -188,6 +209,17 @@ const Table = ({ data }: TableProps) => {
 
   return (
     <div className="table-container">
+      <div className="page-header">
+        <div className="page-title-section">
+          <h1 className="page-title">User Details</h1>
+          <p className="page-description">
+            Information about a user, including name, email, start date,
+            inviter, status, and available actions.
+          </p>
+        </div>
+        <button className="download-report-btn">Download Report</button>
+      </div>
+
       <div className="stats-cards">
         <div className="stat-card">
           <div className="stat-icon stat-icon-total">
@@ -266,9 +298,6 @@ const Table = ({ data }: TableProps) => {
           </div>
 
           <div className="date-filter">
-            {/* <div className="calendar-icon"> */}
-            {/* <FiCalendar size={16} /> */}
-            {/* </div> */}
             <input
               type="date"
               value={dateFrom}
@@ -282,9 +311,6 @@ const Table = ({ data }: TableProps) => {
           </div>
 
           <div className="date-filter">
-            {/* <div className="calendar-icon" /> */}
-            {/* <FiCalendar size={16} /> */}
-            {/* </div> */}
             <input
               type="date"
               value={dateTo}
@@ -308,101 +334,146 @@ const Table = ({ data }: TableProps) => {
       </div>
 
       <div className="table-wrapper">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th onClick={() => handleSort("name")} className="sortable">
-                Name {getSortIcon("name")}
-              </th>
-              <th onClick={() => handleSort("email")} className="sortable">
-                Email {getSortIcon("email")}
-              </th>
-              <th onClick={() => handleSort("date")} className="sortable">
-                Start Date {getSortIcon("date")}
-              </th>
-              <th onClick={() => handleSort("invitedBy")} className="sortable">
-                Invited by {getSortIcon("invitedBy")}
-              </th>
-              <th onClick={() => handleSort("status")} className="sortable">
-                Status {getSortIcon("status")}
-              </th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentRecords.length > 0 ? (
-              currentRecords.map((record) => (
-                <tr key={record.id}>
-                  <td className="name-cell">{record.about.name}</td>
-                  <td className="email-cell">{record.about.email}</td>
-                  <td>{record.details.date}</td>
-                  <td>{record.details.invitedBy}</td>
-                  <td>
-                    <span className={getStatusClass(record.about.status)}>
-                      {record.about.status === "ACTIVE"
-                        ? "Active"
-                        : record.about.status === "INACTIVE"
-                        ? "Inactive"
-                        : "Blocked"}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      <button
-                        className="action-btn action-btn-block"
-                        title="Block User"
-                        onClick={() => handleStatusUpdate(record.id, "BLOCKED")}
-                      >
-                        <FiSlash size={16} />
-                      </button>
-                      <button
-                        className="action-btn action-btn-approve"
-                        title="Activate User"
-                        onClick={() => handleStatusUpdate(record.id, "ACTIVE")}
-                      >
-                        <FiCheck size={16} />
-                      </button>
-                      <button
-                        className="action-btn action-btn-info"
-                        title="View Details"
-                        onClick={() =>
-                          handleStatusUpdate(record.id, "INACTIVE")
-                        }
-                      >
-                        <FiInfo size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
+        {currentRecords.length > 0 ? (
+          <TableVirtuoso
+            style={{ height: "450px" }}
+            data={currentRecords}
+            endReached={handleEndReached}
+            overscan={100}
+            increaseViewportBy={{ top: 0, bottom: 200 }}
+            components={{
+              Table: (props) => <table {...props} className="data-table" />,
+              TableBody: React.forwardRef((props, ref) => (
+                <tbody {...props} ref={ref} />
+              )),
+            }}
+            fixedHeaderContent={() => (
               <tr>
-                <td colSpan={6} className="no-results">
-                  No records found matching your filters
-                </td>
+                <th onClick={() => handleSort("name")} className="sortable">
+                  Name {getSortIcon("name")}
+                </th>
+                <th onClick={() => handleSort("email")} className="sortable">
+                  Email {getSortIcon("email")}
+                </th>
+                <th onClick={() => handleSort("date")} className="sortable">
+                  Start Date {getSortIcon("date")}
+                </th>
+                <th
+                  onClick={() => handleSort("invitedBy")}
+                  className="sortable"
+                >
+                  Invited by {getSortIcon("invitedBy")}
+                </th>
+                <th onClick={() => handleSort("status")} className="sortable">
+                  Status {getSortIcon("status")}
+                </th>
+                <th>Action</th>
               </tr>
             )}
-          </tbody>
-        </table>
+            itemContent={(_index, record) => (
+              <>
+                <td className="name-cell">{record.about.name}</td>
+                <td className="email-cell">{record.about.email}</td>
+                <td>{record.details.date}</td>
+                <td>{record.details.invitedBy}</td>
+                <td>
+                  <span className={getStatusClass(record.about.status)}>
+                    {record.about.status === "ACTIVE"
+                      ? "Active"
+                      : record.about.status === "INACTIVE"
+                      ? "Inactive"
+                      : "Blocked"}
+                  </span>
+                </td>
+                <td>
+                  <div className="action-buttons">
+                    <button
+                      className="action-btn action-btn-block"
+                      title="Block User"
+                      onClick={() => handleStatusUpdate(record.id, "BLOCKED")}
+                    >
+                      <FiSlash size={16} />
+                    </button>
+                    <button
+                      className="action-btn action-btn-approve"
+                      title="Activate User"
+                      onClick={() => handleStatusUpdate(record.id, "ACTIVE")}
+                    >
+                      <FiCheck size={16} />
+                    </button>
+                    <button
+                      className="action-btn action-btn-info"
+                      title="View Details"
+                      onClick={() => handleStatusUpdate(record.id, "INACTIVE")}
+                    >
+                      <FiInfo size={16} />
+                    </button>
+                  </div>
+                </td>
+              </>
+            )}
+          />
+        ) : (
+          <div className="no-results-container">
+            <p className="no-results">No records found matching your filters</p>
+          </div>
+        )}
       </div>
 
       <div className="pagination">
         <button
+          onClick={() => setCurrentPage(1)}
+          disabled={currentPage === 1}
+          className="pagination-btn"
+          title="First page"
+        >
+          ≪
+        </button>
+        <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
+          className="pagination-btn"
+          title="Previous page"
         >
-          Previous
+          ‹
         </button>
-        <span className="page-info">
-          Page {currentPage} of {totalPages}
-        </span>
+
+        <span className="page-label">Page</span>
+
+        <div className="page-select-wrapper">
+          <select
+            value={currentPage}
+            onChange={(e) => setCurrentPage(Number(e.target.value))}
+            className="page-select"
+          >
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <option key={page} value={page}>
+                {page}
+              </option>
+            ))}
+          </select>
+          <FiChevronDown className="page-select-icon" size={14} />
+        </div>
+
+        <span className="page-label">of {totalPages}</span>
+
         <button
           onClick={() =>
             setCurrentPage((prev) => Math.min(prev + 1, totalPages))
           }
           disabled={currentPage === totalPages}
+          className="pagination-btn"
+          title="Next page"
         >
-          Next
+          ›
+        </button>
+        <button
+          onClick={() => setCurrentPage(totalPages)}
+          disabled={currentPage === totalPages}
+          className="pagination-btn"
+          title="Last page"
+        >
+          ≫
         </button>
       </div>
     </div>
