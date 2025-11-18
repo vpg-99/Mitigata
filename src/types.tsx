@@ -1,5 +1,4 @@
 export type Status = "ACTIVE" | "INACTIVE" | "BLOCKED";
-
 export interface Record {
   id: string;
   about: {

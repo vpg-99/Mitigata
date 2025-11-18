@@ -1,9 +1,9 @@
-import { Record, Status } from "../types";
+import type { Record, Status } from "../types";
 
 // Helper function to generate random date in format "30 Dec 2024"
 const generateRandomDate = (): string => {
-  const start = new Date(2023, 0, 1);
-  const end = new Date(2024, 11, 31);
+  const start = new Date(2024, 1, 1);
+  const end = new Date(2025, 11, 17);
   const date = new Date(
     start.getTime() + Math.random() * (end.getTime() - start.getTime())
   );
@@ -119,5 +119,8 @@ export const generateRecords = (): Record[] => {
   return records;
 };
 
-// Export the generated records
-export const records = generateRecords();
+// Generate the records
+const records = generateRecords();
+// Return the generated records as a promise
+export const getData = () =>
+  new Promise((resolve) => setTimeout(resolve, 500, records));
