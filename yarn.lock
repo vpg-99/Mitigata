@@ -2619,9 +2619,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mitigatanew@workspace:.":
+"mitigata@workspace:.":
   version: 0.0.0-use.local
-  resolution: "mitigatanew@workspace:."
+  resolution: "mitigata@workspace:."
   dependencies:
     "@eslint/js": "npm:^9.25.0"
     "@tailwindcss/postcss": "npm:^4.1.17"

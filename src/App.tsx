@@ -36,7 +36,7 @@ export default function App() {
   const scrollContainerRef = useRef(null);
   const sentinelRef = useRef(null);
   const incrementSize = 5;
-  const itemsPerPage = 10;
+  const itemsPerPage = 20;
 
   useEffect(() => {
     getData()
@@ -192,7 +192,7 @@ export default function App() {
     const currentPageStart = (page - 1) * itemsPerPage;
     const currentPageData = filteredAndSortedData.slice(
       currentPageStart,
-      currentPageStart + itemsPerPage
+      currentPageStart + visibleRows
     );
     const maxRowsInCurrentPage = currentPageData.length;
 
