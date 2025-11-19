@@ -36,7 +36,7 @@ export default function App() {
   const scrollContainerRef = useRef(null);
   const sentinelRef = useRef(null);
   const incrementSize = 5;
-  const itemsPerPage = 20;
+  const itemsPerPage = 5;
 
   useEffect(() => {
     getData()
@@ -55,9 +55,18 @@ export default function App() {
 
   const filteredAndSortedData = useMemo(() => {
     const filtered = data.filter((record) => {
-      const matchesSearch =
+      const matchesSearchName =
         !search ||
         record.about.name.toLowerCase().includes(search.toLowerCase());
+
+      const matchesSearchEmail =
+        !search ||
+        record.about.email.toLowerCase().includes(search.toLowerCase());
+
+        const matchesSearchInvitedBy =
+        !search ||
+        record.details.invitedBy.toLowerCase().includes(search.toLowerCase());
+
 
       // Status filter
       const matchesStatus = status === "ALL" || record.about.status === status;
@@ -69,7 +78,7 @@ export default function App() {
         matchesDateRange = recordDate >= startDate && recordDate <= endDate;
       }
 
-      return matchesSearch && matchesStatus && matchesDateRange;
+      return matchesSearchName&& matchesSearchEmail && matchesSearchInvitedBy && matchesStatus && matchesDateRange;
     });
 
     // Then, sort the filtered data
