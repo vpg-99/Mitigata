@@ -78,7 +78,7 @@ export default function App() {
         matchesDateRange = recordDate >= startDate && recordDate <= endDate;
       }
 
-      return matchesSearchName&& matchesSearchEmail && matchesSearchInvitedBy && matchesStatus && matchesDateRange;
+      return (matchesSearchName || matchesSearchEmail || matchesSearchInvitedBy) && matchesStatus && matchesDateRange;
     });
 
     // Then, sort the filtered data
