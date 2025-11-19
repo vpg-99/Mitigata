@@ -116,10 +116,9 @@ export default function App() {
   }, [search, status, startDate, endDate, itemsPerPage]);
 
   const paginatedData = useMemo(() => {
-    const startIndex = (page - 1) * itemsPerPage;
-    const endIndex = startIndex + visibleRows; // Use visibleRows instead of itemsPerPage
-    return filteredAndSortedData.slice(startIndex, endIndex);
-  }, [filteredAndSortedData, page, itemsPerPage, visibleRows]);
+    // For lazy loading, start from 0 and render only visibleRows
+    return filteredAndSortedData.slice(0, visibleRows);
+  }, [filteredAndSortedData, visibleRows]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -189,19 +188,13 @@ export default function App() {
 
     setIsLoadingMore(true);
 
-    const currentPageStart = (page - 1) * itemsPerPage;
-    const currentPageData = filteredAndSortedData.slice(
-      currentPageStart,
-      currentPageStart + visibleRows
-    );
-    const maxRowsInCurrentPage = currentPageData.length;
+    // Load more rows if there are more items in the filtered data
+    const totalAvailable = filteredAndSortedData.length;
 
-    // Only load more if there are more rows to show in current page
-    if (visibleRows < maxRowsInCurrentPage) {
-      setVisibleRows((prev) =>
-        Math.min(prev + incrementSize, maxRowsInCurrentPage)
-      );
+    if (visibleRows < totalAvailable) {
+      setVisibleRows((prev) => Math.min(prev + incrementSize, totalAvailable));
     }
+
     setTimeout(() => setIsLoadingMore(false), 300);
   };
   useEffect(() => {
@@ -222,7 +215,7 @@ export default function App() {
     }
 
     return () => observer.disconnect();
-  }, [visibleRows, page, filteredAndSortedData, isLoadingMore]);
+  }, [visibleRows, filteredAndSortedData, isLoadingMore]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -335,18 +328,10 @@ export default function App() {
                   />
                 ))}
 
-                {(() => {
-                  const currentPageStart = (page - 1) * itemsPerPage;
-                  const currentPageData = filteredAndSortedData.slice(
-                    currentPageStart,
-                    currentPageStart + itemsPerPage
-                  );
-                  const hasMoreRows = visibleRows < currentPageData.length;
-
-                  return hasMoreRows ? (
-                    <div ref={sentinelRef} className="h-1" />
-                  ) : null;
-                })()}
+                {/* Sentinel element for lazy loading */}
+                {visibleRows < filteredAndSortedData.length && (
+                  <div ref={sentinelRef} className="h-1" />
+                )}
               </div>
             </div>
           )}
